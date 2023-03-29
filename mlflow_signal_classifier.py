@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# Author: R. Mohiuddin
+
 
 
 import numpy as np 
@@ -30,8 +32,8 @@ from sklearn.pipeline import Pipeline
 
 
 ############################## Load previously created dataset ######################
-# load dataset 
-dataframe = pd.read_csv("/home/mxm1287/timeseries_row_test_new.csv", header=None)
+# load training dataset 
+dataframe = pd.read_csv("timeseries_row_test_new.csv", header=None)
 
 ####### mount data from google drive ############
 #from google.colab import drive
@@ -43,9 +45,17 @@ dataset = dataframe.values
 X = dataset[:,0:1500].astype(float)
 Y = dataset[:,1500]
 
+############# For Validation ###################
+#load validation dataset
+val_dataframe = pd.read_csv("timeseries_row_validation.csv", header=None)
+val_dataset = val_dataframe.values
+# split into input (X_val) and output (Y_val) variables
+X_val = val_dataset[:,0:1500].astype(float)
+Y_val = val_dataset[:,1500]
+
 print(Y)
 
-def create_model(alpha = 0.25, gamma = 0.1, f1_threshold = 0.4, lstm_layers1 = 32, lstm_layers2 = 40, dropout = 0.1):
+def create_model(alpha = 0.25, gamma = 0.1, f1_threshold = 0.4, lstm_layers1 = 32, lstm_layers2 = 40, dropout = 0):
     
     model = Sequential()
     
@@ -68,24 +78,26 @@ def create_model(alpha = 0.25, gamma = 0.1, f1_threshold = 0.4, lstm_layers1 = 3
     
     f1_score = tfa.metrics.F1Score(num_classes=1, threshold=f1_threshold)
     
+    SGD = tf.keras.optimizers.SGD(learning_rate = 0.005)
+    
     # Compile model 
-    model.compile(loss=tf.keras.losses.BinaryFocalCrossentropy(alpha=alpha, gamma = gamma), optimizer= "SGD", metrics= [f1_score])
+    model.compile(loss=tf.keras.losses.BinaryFocalCrossentropy(alpha=alpha, gamma = gamma), optimizer= SGD, metrics= [f1_score])
     
     return model
 
 # Enable MLflow tracking
 mlflow.set_tracking_uri("http://localhost:5000")
 
-mlflow.set_experiment("cres_signal_detection")
+mlflow.set_experiment("cres_signal_detection_separate_validation")
 
 # Define a function to train and evaluate the model with MLflow tracking
-def train_and_evaluate(alpha = 0.25, gamma = 0.1, f1_threshold = 0.4, lstm_layers1 = 32, lstm_layers2 = 40, dropout = 0.1):
+def train_and_evaluate(alpha = 0.25, gamma = 0.1, f1_threshold = 0.4, lstm_layers1 = 32, lstm_layers2 = 40, dropout = 0):
     
     with mlflow.start_run():
         # Create model
         model = create_model(alpha, gamma, f1_threshold, lstm_layers1, lstm_layers2, dropout)
         # Train model
-        plot_progress = model.fit(X, Y, validation_split=0.25, epochs=5, batch_size=10, shuffle=True, verbose=1)
+        plot_progress = model.fit(X, Y, validation_data=(X_val, Y_val), epochs=6, batch_size=10, shuffle=True, verbose=1)
 
         # Log parameters and metrics with MLflow
         mlflow.log_param("f1_threshold", f1_threshold)
@@ -103,15 +115,17 @@ def train_and_evaluate(alpha = 0.25, gamma = 0.1, f1_threshold = 0.4, lstm_layer
 
 # Train and evaluate model with different parameters
 
-num_neurons = [32,40]
+num_neurons = [16,32]
+gammas = [0.1,1,2,3]
+alphas = [0.2,0.3,0.4]
+f1_thresholds = [0.35, 0.4]
+
 
 for lstm_layers1 in num_neurons:
     for lstm_layers2 in num_neurons:
-      for f1_threshold in np.arange(0.1, 0.5, 0.1):
-        for alpha in np.arange(0.1, 0.5, 0.1):
-          for gamma in np.arange(0.1,1.5,0.5):
+      for f1_threshold in f1_thresholds:
+        for alpha in alphas:
+          for gamma in gammas:
                            
             train_and_evaluate(alpha, gamma, f1_threshold, lstm_layers1, lstm_layers2)
-
-
 
