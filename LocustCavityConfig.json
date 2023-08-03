@@ -1,0 +1,58 @@
+{
+    "generators":
+    [          
+       "cavity-signal",
+       "lpf-fft",
+       "decimate-signal",
+       "gaussian-noise",
+       "digitizer"
+    ],
+
+    "lpf-fft":
+    {
+    },
+
+    "decimate-signal":
+    {
+    },
+
+    "cavity-signal":
+    {
+        "transmitter": "kass-current",
+	"cavity-radius": 0.007,
+	"cavity-length": 0.12,
+	"dho-cavity-Q": 1000.0,
+	"dho-cavity-frequency": 25.908e9,
+	"dho-time-resolution": 9.0e-11,
+	"dho-threshold-factor": 0.01,
+	"back-reaction": "true",
+	"event-spacing-samples": 10,
+        "e-gun": false,
+	"voltage-check": true,
+        "lo-frequency": $lofrequency,
+	"xml-filename": "$xmlfilename"
+    },
+
+    "simulation":
+    {
+        "egg-filename": "$eggfilename",
+	"acquisition-rate": 403,
+        "n-records": 1,
+        "record-size": 3500000,
+        "n-channels": 1
+    },
+  
+    "gaussian-noise":
+    {
+    	"noise-floor-psd": 1.5e-13,
+    	"domain": "time"
+    },
+
+
+    "digitizer":
+    {
+    "v-range":  $vrange,
+    "v-offset": $voffset
+    }
+}
+
