@@ -1,0 +1,1 @@
+Machine learning triggering algorothm for weak and noisly signal from CRES. This version of the algorithm utilizes LSTM units to learn from the chirping signature of CRES signal in Fourier space. MLFlow hyperparameter optimization with multi-GPU parallelization has been added.
