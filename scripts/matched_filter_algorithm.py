@@ -3,10 +3,42 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 def generate_signal(template, noise_level=0.02):
+    """Generates a noisy version of the signal based on template.
+
+    Parameters
+    ----------
+    template : np.ndarray
+        The input signal template (1D array).
+    noise_level : float, optional
+        The standard deviation of the Gaussian noise to be added,
+        defaults to 0.02.
+
+    Returns
+    -------
+    np.ndarray
+        Noisy signal: the template with added Gaussian noise.
+    """
     noise = noise_level * np.random.randn(len(template))
     return template + noise
 
 def matched_filter(signal, template):
+    """Performs matched filtering of an incoming signal with a template bank.
+
+    This function calculates the cross-correlation between the signal and the
+    template, the core operation of a matched filter.
+
+    Parameters
+    ----------
+    signal : np.ndarray
+        The input signal to be filtered (1D array).
+    template : np.ndarray
+        The template to match against (1D array).
+
+    Returns
+    -------
+    np.ndarray
+        The absolute value of the correlation result.
+    """
 
     # Time-reverse and conjugate the template
     template_reversed = template[::-1]
@@ -17,7 +49,7 @@ def matched_filter(signal, template):
 #   correlation = np.correlate(signal, template, mode='valid')
     return abs(correlation)
 """
-
+# Previous method: 
 def matched_filter(signal, template, chunk_length=8192, overlap=0):
     # Time-reverse and conjugate the template
     template_reversed = template[::-1]
