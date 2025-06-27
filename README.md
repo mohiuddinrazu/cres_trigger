@@ -1,6 +1,6 @@
 ---
 
-# ML Signal Classification for Project 8
+# NLP based Signal Detection for Project 8
 
 This repository provides tools to simulate, preprocess, train, and validate machine learning triggering models in Python (TensorFlow 2) for weak and noisy CRES signal classification. It supports both LSTM and Transformer-based neural network architectures to learn from the chirping signature of CRES signal in Fourier space, and leverages the [Locust](https://github.com/project8/locust_mc) and [Kassiopeia](https://github.com/project8/Kassiopeia) simulation frameworks. MLFlow hyperparameter optimization with multi-GPU parallelization has been used for optimization.
 
